@@ -56,8 +56,9 @@ body {
 header {
 	display: flex;
 	justify-content: space-between;
-	margin: 50px 0
+	margin: 50px 0;
 }
+
 section {
 	margin: 50px 0
 }
@@ -201,6 +202,17 @@ input[type="submit"]{
 footer nav ul {
 	display: flex;
 	justify-content: flex-end;
-	margin: 2em
+	margin: 2em;
 }
 
+/***** Page Login *****/
+.lien-mdp {
+	display: flex;
+	justify-content: center;
+	color: #3D3D3D;
+	margin-bottom: 250px;
+}
+
+.loginH2 {
+	margin-top: 150px;
+}
