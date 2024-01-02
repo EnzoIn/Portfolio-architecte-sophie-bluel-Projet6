@@ -17,74 +17,67 @@ const filter = document.querySelector("#filter");
 
 //fonction pour créer un projet dans le DOM
 function createWorks(work) {
-  //Création des éléments HTML
+  
   const figure = document.createElement("figure");
   const img = document.createElement("img");
-  const figcaption = document.createElement("figcaption");
-  //Configuration de l'image
+  const figcaption = document.createElement("figcaption")
   img.src = work.imageUrl;
   img.alt = work.titre;
-  //Configuration du titre
   figcaption.innerText = work.title;
-  //Ajout des éléments au DOM
   gallery.appendChild(figure);
   figure.appendChild(img);
   figure.appendChild(figcaption);
 }
 
 //Fonction pour afficher les projets
-async function displayPhotos() {
-  //Parcourir les données avec un forEach
+function displayPhotos() {
   works.forEach((work) => {
-    //Appel de la fonction
     createWorks(work);
   });
 }
 
 //Fonction pour créer les bouttons de catégories
-async function categoriesButtons() {
-  //Parcourir les données avec un forEach
+function categoriesButtons() {
+  const liTous = document.createElement("li");
+  liTous.innerHTML = "Tous";
+  liTous.classList.add("focusBtnFilter")
+  liTous.id = 0;
+  filter.appendChild(liTous);
   categories.forEach((category) => {
-    //Création des éléments HTML
     const filterBtn = document.createElement("li");
-    //Configuration des titres et ID des bouttons
     filterBtn.innerText = category.name;
     filterBtn.id = category.id;
-    //Ajout des éléments au DOM
     filter.appendChild(filterBtn);
   });
 }
 
 //Fonction pour trier les projets au click sur les bouttons
-async function categoriesSort() {
-    //Récupération des bouttons #filtre li
+function categoriesSort() {
   const buttons = document.querySelectorAll("#filter li");
-  //Parcourir les données avec un forEach
   buttons.forEach((button) => {
-    //Appliquer un événement au click
     button.addEventListener("click", (e) => {
-        //Au click récupération de l'ID du button
       const filterBtnID = e.target.id;
-      //Suppression du contenu de .gallery
+      buttons.forEach((btn) => {
+        btn.classList.remove("focusBtnFilter");
+      });
+      e.target.classList.add("focusBtnFilter");
+      console.log(e.target);
       gallery.innerHTML = "";
-    //Utilisation d'un "if" si filterBtn est différent de "0"
+    //Utilisation d'un "if" si filterBtn est différent de "Tous"
       if (filterBtnID !== "0") {
         // La variables workSort permet de filtrer l'ID des projets avec l'ID de filterBtn
         const workSort = works.filter((work) => work.categoryId == filterBtnID);
-         //Parcourir les données avec un forEach
         workSort.forEach((work) => {
-            //Appel de la fonction
           createWorks(work);
         });
       } else {
-        //Sinon appel de la fonction pour afficher tous les projets
         displayPhotos();
       }
     });
   });
 }
 
-//Appel des fonctions
+
 displayPhotos();
 categoriesButtons();
 categoriesSort();

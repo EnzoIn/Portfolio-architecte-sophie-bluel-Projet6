@@ -52,6 +52,7 @@ body {
 	margin:auto;
 	font-family: 'Work Sans' ;
 	font-size: 14px;
+	background: #FFFEF8;
 }
 header {
 	display: flex;
@@ -89,11 +90,16 @@ nav ul {
 	display: flex;
 	align-items: center;
 	list-style-type: none;
+	gap: 30px;
 
 }
 nav li {
 	padding: 0 10px;
 	font-size: 1.2em;
+}
+nav img {
+	width: 22px;
+	height: 22px;
 }
 
 li:hover {
@@ -102,25 +108,30 @@ li:hover {
 #introduction {
 	display: flex;
 	align-items: center;
+	margin-top: 140px;
 }
 #introduction figure {
-	flex: 1
+	flex: 1;
 }
 #introduction img {
 	display: block;
-	margin: auto;
-	width: 80%;
+	margin-left: 85px;
+	width: 83%;
 }
-
 #introduction article {
 	flex: 1
 }
 #introduction h2 {
 	margin-bottom: 1em;
+	margin-left: 45px;
+
 }
 
 #introduction p {
 	margin-bottom: 0.5em;
+	margin-left: 45px;
+	margin-right: 120px;
+	padding-bottom: 10px;
 }
 #portfolio h2 {
 	text-align: center;
@@ -138,25 +149,31 @@ li:hover {
 	border: 1px solid #1D6154;
 	color: #1D6154;
 	font-size: 16px;
+	cursor: pointer;
 }
-#filter li:hover {
+#filter li.focusBtnFilter {
 	color: white;
 	background-color: #1D6154;
 	cursor: pointer;
 }
 .gallery {
-	width: 100%;
+	width: 85%;
 	display: grid;
 	grid-template-columns: 1fr 1fr 1fr;
 	grid-column-gap: 20px;
 	grid-row-gap: 20px;
+	margin: auto;
 }
 
 .gallery img {
 	width: 100%;
+	padding-bottom: 5px;
 
 }
 #contact {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
 	width: 50%;
 margin: auto;
 }
@@ -168,6 +185,7 @@ margin: auto;
 	margin-bottom: 20px;
 }
 #contact form {
+	width: 380px;
 	text-align: left;
 	margin-top:30px;
 	display: flex;
@@ -179,6 +197,7 @@ margin: auto;
 	font-size: 1.2em;
 	border: none;
 	box-shadow: 0px 4px 14px rgba(0, 0, 0, 0.09);
+	margin-bottom: 15px;
 }
 #contact label {
 	margin: 2em 0 1em 0;
@@ -198,11 +217,22 @@ input[type="submit"]{
 	text-align: center;
 	border-radius: 60px ;
 }
-
+footer {
+	display: flex;
+	justify-content: flex-end;
+	align-items: center;
+	background: white;
+	width: 100vw;
+	margin-left: calc(-50vw + 50%);
+	margin-right: calc(-50vw + 50%);
+	height: 75px;
+	margin-top: 30px;
+}
 footer nav ul {
 	display: flex;
 	justify-content: flex-end;
 	margin: 2em;
+	margin-right: 100px;
 }
 
 /***** Page Login *****/
