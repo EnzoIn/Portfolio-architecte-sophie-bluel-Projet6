@@ -17,10 +17,9 @@ const filter = document.querySelector("#filter");
 
 //fonction pour créer un projet dans le DOM
 function createWorks(work) {
-  
   const figure = document.createElement("figure");
   const img = document.createElement("img");
-  const figcaption = document.createElement("figcaption")
+  const figcaption = document.createElement("figcaption");
   img.src = work.imageUrl;
   img.alt = work.titre;
   figcaption.innerText = work.title;
@@ -40,7 +39,7 @@ function displayPhotos() {
 function categoriesButtons() {
   const liTous = document.createElement("li");
   liTous.innerHTML = "Tous";
-  liTous.classList.add("focusBtnFilter")
+  liTous.classList.add("focusBtnFilter");
   liTous.id = 0;
   filter.appendChild(liTous);
   categories.forEach((category) => {
@@ -61,9 +60,8 @@ function categoriesSort() {
         btn.classList.remove("focusBtnFilter");
       });
       e.target.classList.add("focusBtnFilter");
-      console.log(e.target);
       gallery.innerHTML = "";
-    //Utilisation d'un "if" si filterBtn est différent de "Tous"
+      //Utilisation d'un "if" si filterBtn est différent de "Tous"
       if (filterBtnID !== "0") {
         // La variables workSort permet de filtrer l'ID des projets avec l'ID de filterBtn
         const workSort = works.filter((work) => work.categoryId == filterBtnID);
@@ -76,7 +74,6 @@ function categoriesSort() {
     });
   });
 }
-
 
 displayPhotos();
 categoriesButtons();
