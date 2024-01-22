@@ -20,6 +20,9 @@ async function deleteWorks(workId, authToken) {
       },
     });
     if (response.ok) {
+      if (response.status === 204) {
+        return;
+      }
       const result = await response.json();
       console.log("Projet supprimé", result);
     } else {
@@ -33,17 +36,18 @@ async function deleteWorks(workId, authToken) {
   }
 }
 
-async function postWorks(image, title, category) {
+async function postWorks(image, title, category, authToken) {
   try {
     const formData = new FormData();
     formData.append("image", image);
     formData.append("title", title);
-    formData.append("category", category.id);
+    formData.append("category", category);
 
     const response = await fetch("http://localhost:5678/api/works", {
       method: "POST",
       headers: {
         Accept: "application/json",
+        Authorization: `Bearer ${authToken}`,
       },
       body: formData,
     });
@@ -51,7 +55,7 @@ async function postWorks(image, title, category) {
       const result = await response.json();
       console.log("Projet ajouté", result);
     } else {
-      const errorResponse = await response.json(); 
+      const errorResponse = await response.json();
       console.error("Erreur lors de l'ajout de projet :", errorResponse);
       throw new Error(
         `Erreur lors de l'ajout du projet (status ${response.status})`
@@ -71,6 +75,8 @@ const filter = document.querySelector("#filter");
 //fonction pour créer un projet dans le DOM
 function createWorks(work) {
   const figure = document.createElement("figure");
+  const workId = gallery.children.length + 1;
+  figure.id = `containerWork${workId}`;
   const img = document.createElement("img");
   const figcaption = document.createElement("figcaption");
   img.src = work.imageUrl;
@@ -82,10 +88,15 @@ function createWorks(work) {
 }
 
 //Fonction pour afficher les projets
-function displayPhotos() {
-  works.forEach((work) => {
-    createWorks(work);
-  });
+async function displayPhotos() {
+  try {
+    const works = await getWorks();
+    works.forEach((work) => {
+      createWorks(work);
+    });
+  } catch (error) {
+    console.error("Erreur lors de la récupération des travaux :", error);
+  }
 }
 
 //Fonction pour créer les bouttons de catégories
@@ -104,28 +115,35 @@ function categoriesButtons() {
   });
 }
 
-//Fonction pour trier les projets au click sur les bouttons
+// Fonction pour trier les projets au click sur les boutons
 function categoriesSort() {
   const buttons = document.querySelectorAll("#filter li");
 
   buttons.forEach((button) => {
-    button.addEventListener("click", (event) => {
+    button.addEventListener("click", async (event) => {
       const filterBtnID = event.target.id;
       buttons.forEach((btn) => {
         btn.classList.remove("focusBtnFilter");
       });
       event.target.classList.add("focusBtnFilter");
       gallery.innerHTML = "";
-
-      //Utilisation d'un "if" si filterBtn est différent de "Tous"
-      if (filterBtnID !== "0") {
-        // La variables workSort permet de filtrer l'ID des projets avec l'ID de filterBtn
-        const workSort = works.filter((work) => work.categoryId == filterBtnID);
-        workSort.forEach((work) => {
-          createWorks(work);
-        });
-      } else {
-        displayPhotos();
+      try {
+        const works = await getWorks();
+        // Utilisation d'un "if" si filterBtn est différent de "Tous"
+        if (filterBtnID !== "0") {
+          // La variable workSort permet de filtrer l'ID des projets avec l'ID de filterBtn
+          const workSort = works.filter(
+            (work) => work.categoryId == filterBtnID
+          );
+          workSort.forEach((work) => {
+            createWorks(work);
+          });
+        } else {
+          // Afficher tous les projets
+          displayPhotos();
+        }
+      } catch (error) {
+        console.error("Erreur lors de la récupération des travaux :", error);
       }
     });
   });
@@ -183,11 +201,21 @@ function modalCreateWorks(work) {
   containerWork.appendChild(trashIcon);
 }
 
-function displayModalWorks() {
-  works.forEach((work) => {
-    modalCreateWorks(work);
-  });
+async function displayModalWorks() {
+  try {
+    const works = await getWorks();
+
+    const modalGallery = document.querySelector("#modalGallery");
+    modalGallery.innerHTML = "";
+
+    works.forEach((work) => {
+      modalCreateWorks(work);
+    });
+  } catch (error) {
+    console.error("Erreur lors de la récupération des travaux :", error);
+  }
 }
+
 //Modale galerie photo
 function modalWorks() {
   //Arrière de la modale
@@ -253,6 +281,26 @@ const previewImage = () => {
   }
 };
 
+//Fonction pour valider le formulaire
+function formValid() {
+  const previewImageInput = document.querySelector("#uploadImage");
+  const formSelectInput = document.querySelector("#select");
+  const formTitleInput = document.querySelector("#title");
+  const btnAdd = document.querySelector("#btnAdd");
+  if (
+    previewImageInput.files.length > 0 &&
+    formSelectInput.value.trim() !== "" &&
+    formTitleInput.value.trim() !== ""
+  ) {
+    btnAdd.disabled = false;
+    btnAdd.style.backgroundColor = "green";
+    btnAdd.style.cursor = "pointer";
+  } else {
+    btnAdd.disabled = true;
+  }
+  console.log(btnAdd.disabled);
+}
+
 //Fonction pour créer le formulaire de la modale d'ajout de photo
 function createFormModal() {
   const form = document.createElement("form");
@@ -264,7 +312,6 @@ function createFormModal() {
   const fileInput = document.createElement("input");
   fileInput.type = "file";
   fileInput.id = "uploadImage";
-
   fileInput.addEventListener("change", previewImage);
 
   const imagePreview = document.createElement("img");
@@ -286,7 +333,7 @@ function createFormModal() {
   fileLabel.append(fileInput, imagePreview, iconImage, paraText, spanText);
 
   const titleLabel = document.createElement("label");
-  titleLabel.id = "title";
+
   titleLabel.textContent = "Titre";
   titleLabel.classList.add("labelTitle");
 
@@ -295,11 +342,15 @@ function createFormModal() {
   titleInput.id = "title";
 
   const selectLabel = document.createElement("label");
-  selectLabel.id = "select";
+
   selectLabel.textContent = "Catégorie";
 
   const selectInput = document.createElement("select");
   selectInput.id = "select";
+
+  const defaultOption = document.createElement("option");
+  defaultOption.value = "";
+  selectInput.appendChild(defaultOption);
 
   categories.forEach((category) => {
     const option = document.createElement("option");
@@ -309,21 +360,12 @@ function createFormModal() {
   });
 
   form.append(fileLabel, titleLabel, titleInput, selectLabel, selectInput);
+
+  fileInput.addEventListener("change", formValid);
+  titleInput.addEventListener("input", formValid);
+  selectInput.addEventListener("input", formValid);
+
   return form;
-}
-
-//Fonction pour rendre le bouton valider d'ajout de projet disable
-function submitDisabled() {
-  const previewImage = document.querySelector("#uploadImage");
-  const inputText = document.querySelector("#title");
-  const select = document.querySelector("#select");
-  const btnAdd = document.querySelector("#btnAdd");
-  btnAdd.disabled = true;
-
-  if (previewImage.files.length > 0 && inputText.value && select.value) {
-    btnAdd.disabled = false;
-    btnAdd.style.backgroundColor = "green";
-  }
 }
 
 //Modale galerie photo
@@ -362,26 +404,6 @@ function modalWorksAdd() {
   modalBackground.appendChild(modalWorksAdd);
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 displayPhotos();
 categoriesButtons();
 categoriesSort();
@@ -400,8 +422,9 @@ if (sessionStorage.getItem("token")) {
   document.addEventListener("click", (event) => {
     const modalBackground = document.querySelector("#modalBackground");
     if (
-      event.target.tagName === "I" &&
-      event.target.classList.contains("fa-xmark")
+      (event.target.tagName === "I" &&
+        event.target.classList.contains("fa-xmark")) ||
+      event.target === modalBackground
     ) {
       modalBackground.remove();
     }
@@ -417,15 +440,14 @@ if (sessionStorage.getItem("token")) {
       const authToken = sessionStorage.getItem("token");
       if (workId && authToken) {
         try {
-          const workElement = document.querySelector(`work-${workId}`);
-          if (workElement) {
-            workElement.remove();
-          }
           await deleteWorks(workId, authToken);
-          console.log(`Travail avec l'ID ${workId} supprimé avec succès.`);
+          await displayModalWorks();
+          gallery.innerHTML = "";
+          await displayPhotos();
+          console.log(`Projet avec l'ID ${workId} supprimé avec succès.`);
         } catch (error) {
           console.error(
-            "Erreur lors de la suppression du travail :",
+            "Erreur lors de la suppression du projet :",
             error.message
           );
         }
@@ -455,23 +477,41 @@ if (sessionStorage.getItem("token")) {
       displayModalWorks();
     }
   });
+
+  //Événement au click pour poster un nouveau projet
+  document.addEventListener("click", async (event) => {
+    const btnAdd = document.querySelector("#btnAdd");
+    const authToken = sessionStorage.getItem("token");
+    if (!authToken) {
+      console.error("L'utilisateur n'est pas correctement authentifié.");
+      return;
+    }
+    if (
+      event.target === btnAdd &&
+      btnAdd.disabled !== undefined &&
+      !btnAdd.disabled
+    ) {
+      const previewImageInput = document.querySelector("#uploadImage");
+      const formSelectInput = document.querySelector("#select");
+      const formTitleInput = document.querySelector("#title");
+
+      const imageFile = previewImageInput.files[0];
+      const categoryId = formSelectInput.value;
+      const title = formTitleInput.value;
+
+      if (!imageFile || !categoryId || !title) {
+        console.error("Veuillez remplir tous les champs.");
+        return;
+      }
+      try {
+        await postWorks(imageFile, title, categoryId, authToken);
+        console.log("Le projet est posté.");
+        modalWorksAdd();
+        gallery.innerHTML = "";
+        await displayPhotos();
+      } catch (error) {
+        console.error("Erreur lors du post du projet :", error.message);
+      }
+    }
+  });
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-// //Événement au click pour poster un nouveau projet
-// const btnAdd = document.querySelector("#btnAdd");
-// btnAdd.addEventListener("click", () => {
-  
-// })

@@ -202,6 +202,11 @@ nav li {
   padding: 0 10px;
   font-size: 1.2em;
 }
+
+#loginPage {
+  cursor: pointer;
+}
+
 nav img {
   width: 22px;
   height: 22px;
@@ -451,6 +456,7 @@ footer nav ul {
 #modalWorksAdd form label {
   display: flex;
   flex-direction: column;
+  margin-bottom: 5px;
 }
 
 #modalWorksAdd form input,
@@ -559,6 +565,10 @@ form #select {
 
 .labelTitle {
   margin-top: 30px;
+}
+
+#previewImage {
+  cursor: pointer;
 }
 
 #btnAdd {
