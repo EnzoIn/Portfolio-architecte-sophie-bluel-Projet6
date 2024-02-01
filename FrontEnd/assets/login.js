@@ -24,10 +24,9 @@ function alertPassword() {
     "Erreur dans l’identifiant ou le mot de passe !";
   form.insertBefore(alertPasswordLocation, form.firstChild);
 }
-
+ const sendRequest = document.querySelector("#sendRequest");
 //Événement au click pour se connecter au site
 sendRequest.addEventListener("click", async (event) => {
-  const sendRequest = document.querySelector("#sendRequest");
   event.preventDefault();
   try {
     const inputEmail = document.querySelector("#email").value;
@@ -38,7 +37,7 @@ sendRequest.addEventListener("click", async (event) => {
       window.location.href = "./index.html";
     } else {
       alertPassword();
-      return error;
+      return error
     }
   } catch (error) {
     console.error("Échec de l'authentification", error.message);
