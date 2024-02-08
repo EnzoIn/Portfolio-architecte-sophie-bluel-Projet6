@@ -1,19 +1,5 @@
 //Fonction pour récupérer les API
-async function postUser(email, password) {
-  const requestBody = {
-    email: email,
-    password: password,
-  };
-  const response = await fetch("http://localhost:5678/api/users/login", {
-    method: "POST",
-    body: JSON.stringify(requestBody),
-    headers: { "content-type": "application/json" },
-  });
-  if (response.ok) {
-    const responseData = await response.json();
-    return responseData;
-  }
-}
+import { postUser } from "./_api.js";
 
 //Fonction pour créer un message d'alerte en cas d'identifiant ou de mot de passe erroné
 function alertPassword() {
